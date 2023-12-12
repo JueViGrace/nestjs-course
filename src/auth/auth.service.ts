@@ -5,7 +5,6 @@ import {
 } from '@nestjs/common';
 import { UsersService } from 'src/users/users.service';
 import { RegisterDto } from './dto/register.dto';
-
 import * as bcryptjs from 'bcryptjs';
 import { LoginDto } from './dto/login.dto';
 import { JwtService } from '@nestjs/jwt';
@@ -24,15 +23,20 @@ export class AuthService {
       throw new BadRequestException('User already exists');
     }
 
-    return await this.usersService.create({
+    await this.usersService.create({
       name,
       email,
       password: await bcryptjs.hash(password, 10),
     });
+
+    return {
+      name,
+      email,
+    };
   }
 
   async login({ email, password }: LoginDto) {
-    const user = await this.usersService.findOneByEmail(email);
+    const user = await this.usersService.findByEmailWithPassword(email);
     if (!user) {
       throw new UnauthorizedException('Email or password is wrong');
     }
@@ -50,5 +54,9 @@ export class AuthService {
       token,
       email,
     };
+  }
+
+  async profile({ email, role }: { email: string; role: string }) {
+    return await this.usersService.findOneByEmail(email);
   }
 }

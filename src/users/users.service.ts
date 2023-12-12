@@ -16,6 +16,13 @@ export class UsersService {
     return this.userRepository.save(createUserDto);
   }
 
+  findByEmailWithPassword(email: string) {
+    return this.userRepository.findOne({
+      where: { email },
+      select: ['id', 'name', 'email', 'password', 'role'],
+    });
+  }
+
   findOneByEmail(email: string) {
     return this.userRepository.findOneBy({ email });
   }
